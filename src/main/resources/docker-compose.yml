@@ -1,0 +1,28 @@
+version: '3'
+services:
+#  app:
+#    image: your-java-app-image:latest
+#    ports:
+#      - "8080:8080"
+#    volumes:
+#      - app-data:/app/data
+#    depends_on:
+#      - database
+
+  database:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: demo
+      MYSQL_DATABASE: demo
+      MYSQL_USER: demo
+      MYSQL_PASSWORD: demo
+    ports:
+      - "3306:3306"
+    volumes:
+      - db-data:/var/lib/mysql
+
+volumes:
+  db-data:
+
+
+
