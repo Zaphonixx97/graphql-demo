@@ -8,3 +8,13 @@ spring:
     graphiql:
       enabled: true
       path: /graphiql
+  datasource:
+    url: jdbc:mysql://localhost:3306/demo
+    username: demo
+    password: demo
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
