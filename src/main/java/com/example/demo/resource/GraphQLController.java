@@ -1,5 +1,6 @@
 package com.example.demo.resource;
 
+import com.example.demo.exception.NotFoundException;
 import com.example.demo.model.Author;
 import com.example.demo.model.Book;
 import com.example.demo.repository.AuthorRepository;
@@ -11,9 +12,12 @@ import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 @Controller
 public class GraphQLController {
+    private static final String AUTHOR_WITH_ID_NOT_FOUND = "Author with id %s not found";
+    private static final String BOOK_WITH_ID_NOT_FOUND = "Book with id %s not found";
 
     @Autowired
     private AuthorRepository authorRepository;
@@ -22,7 +26,7 @@ public class GraphQLController {
 
     @QueryMapping
     public Book book(@Argument Long id) {
-        return bookRepository.findById(id).orElseThrow(RuntimeException::new);
+        return bookRepository.findById(id).orElseThrow(getNotFoundExceptionSupplier(BOOK_WITH_ID_NOT_FOUND, id));
     }
 
     @QueryMapping
@@ -32,15 +36,15 @@ public class GraphQLController {
 
     @MutationMapping
     public Book createBook(@Argument String title, @Argument int publicationYear, @Argument Long authorId) {
-        var author = this.authorRepository.findById(authorId).orElseThrow(RuntimeException::new);
+        var author = this.authorRepository.findById(authorId).orElseThrow(getNotFoundExceptionSupplier(AUTHOR_WITH_ID_NOT_FOUND, authorId));
         var book =  new Book(title, publicationYear, author);
         return bookRepository.save(book);
     }
 
     @MutationMapping
     public Book updateBook(@Argument Long id, @Argument String title, @Argument int publicationYear, @Argument Long authorId) {
-        var book = this.bookRepository.findById(id).orElseThrow(RuntimeException::new);
-        var author = this.authorRepository.findById(authorId).orElseThrow(RuntimeException::new);
+        var book = this.bookRepository.findById(id).orElseThrow(getNotFoundExceptionSupplier(BOOK_WITH_ID_NOT_FOUND, id));
+        var author = this.authorRepository.findById(authorId).orElseThrow(getNotFoundExceptionSupplier(AUTHOR_WITH_ID_NOT_FOUND, id));
         book.setTitle(title);
         book.setPublicationYear(publicationYear);
         book.setAuthor(author);
@@ -48,14 +52,18 @@ public class GraphQLController {
     }
 
     @MutationMapping
-    public boolean deleteBook(@Argument Long id) {
+    public void deleteBook(@Argument Long id) {
+        this.bookRepository.findById(id).orElseThrow(getNotFoundExceptionSupplier(BOOK_WITH_ID_NOT_FOUND, id));
         this.bookRepository.deleteById(id);
-        return true;
+    }
+
+    private static Supplier<NotFoundException> getNotFoundExceptionSupplier(String errorMessage, Long id) {
+        return () -> new NotFoundException(errorMessage.formatted(id));
     }
 
     @QueryMapping
     public Author author(@Argument Long id) {
-        return authorRepository.findById(id).orElseThrow(RuntimeException::new);
+        return authorRepository.findById(id).orElseThrow(getNotFoundExceptionSupplier(AUTHOR_WITH_ID_NOT_FOUND, id));
     }
 
     @QueryMapping
@@ -71,15 +79,14 @@ public class GraphQLController {
 
     @MutationMapping
     public Author updateAuthor(@Argument Long id, @Argument String name) {
-        var author = this.authorRepository.findById(id).orElseThrow(RuntimeException::new);
+        var author = this.authorRepository.findById(id).orElseThrow(getNotFoundExceptionSupplier(AUTHOR_WITH_ID_NOT_FOUND, id));
         author.setName(name);
         return this.authorRepository.save(author);
     }
 
     @MutationMapping
-    public boolean deleteAuthor(@Argument Long id) {
+    public void deleteAuthor(@Argument Long id) {
+        this.authorRepository.findById(id).orElseThrow(getNotFoundExceptionSupplier(AUTHOR_WITH_ID_NOT_FOUND, id));
         this.authorRepository.deleteById(id);
-        return true;
     }
-
 }
