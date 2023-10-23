@@ -21,6 +21,7 @@ public class Book {
     private String title;
     private int publicationYear;
     @ManyToOne
+    @JoinColumn(name="author_id", nullable=false)
     private Author author;
 
     public Book(String title, int publicationYear, Author author) {
