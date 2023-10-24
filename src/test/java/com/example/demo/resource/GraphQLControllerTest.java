@@ -33,7 +33,6 @@ public class GraphQLControllerTest {
     @BeforeAll
     static void init() {
         testAuthor = new Author("Cosmin");
-        testAuthor.setId(1L);
         testBook1 = new Book("GraphQL", 2023, testAuthor);
         testBook2 = new Book("GraphQL", 2023, testAuthor);
     }
